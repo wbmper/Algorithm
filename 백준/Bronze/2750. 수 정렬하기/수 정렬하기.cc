@@ -2,6 +2,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+/**
+Sort: Merge Sort
+*/
 #include <stdio.h>
 
 #define rnt register int
