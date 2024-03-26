@@ -1,7 +1,3 @@
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include <stdio.h>
 
 #define rnt register int
@@ -18,19 +14,18 @@ int ans = MAXN * MAXN + 1;
 
 struct DATA {
 	int r, c;
-}que[MAXN * MAXN];
+} que[MAXN * MAXN];
 
-struct NODE {
-	int GroupNum;
-	NODE* Next;
-	NODE* Alloc(int NewGroupNum, NODE* NewNode) {
-		GroupNum = NewGroupNum, Next = NewNode;
-		return this;
-	}
-} Buf[MAXN * MAXN * 10], *pstNode[MAXN * MAXN + 1];
-int nNodeCnt;
+int nNodeIndex, anStartNode[MAXN * MAXN], anChild[MAXN * MAXN * 10], anLink[MAXN * MAXN * 10];
 
-void Input() 
+void SetGroup(int s, int e) 
+{
+	anLink[++nNodeIndex] = anStartNode[s];
+	anChild[nNodeIndex] = e;
+	anStartNode[s] = nNodeIndex;
+}
+
+void Input()
 {
 	scanf("%d %d", &M, &N);
 	for (rnt i = 1; i <= M; i++) {
@@ -41,7 +36,7 @@ void Input()
 	}
 }
 
-void FloodFill(int r, int c) 
+void FloodFill(int r, int c)
 {
 	fr = 0, re = 0;
 	rnt nr, nc;
@@ -62,8 +57,7 @@ void FloodFill(int r, int c)
 			}
 			else if (NewVal > 0 && GroupLinkMark[NewVal] < mark) {
 				GroupLinkMark[NewVal] = mark;
-				pstNode[mark] = Buf[nNodeCnt++].Alloc(NewVal, pstNode[mark]);
-				pstNode[NewVal] = Buf[nNodeCnt++].Alloc(mark, pstNode[NewVal]);
+				SetGroup(NewVal, mark), SetGroup(mark, NewVal);
 			}
 		}
 	}
@@ -82,15 +76,15 @@ void GroupMark()
 	}
 }
 
-void BFS(int Mark) 
+void BFS(int Mark)
 {
 	fr = re = 0;
 	Visit[Mark] = ++VisitCount;
 	que[re++] = { Mark, 0 };
 	while (fr < re) {
 		DATA& cur = que[fr++];
-		for (NODE* p = pstNode[cur.r]; p; p = p->Next) {
-			rnt nGroupNum = p->GroupNum;
+		for (rnt p = anStartNode[cur.r]; p; p = anLink[p]) {
+			rnt nGroupNum = anChild[p];
 			rnt t = cur.c + 1;
 			if (Visit[nGroupNum] < VisitCount) {
 				Visit[nGroupNum] = VisitCount;
@@ -133,3 +127,4 @@ int main()
 	printf("%d\n", ans);
 	return 0;
 }
+
